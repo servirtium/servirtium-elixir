@@ -19,6 +19,13 @@ defmodule Servirtium do
     conn = opts[:plug].(conn, opts)
 
     # record headers and bodies from request/response
-    assign(conn, :private, %{servirtium: %{conn: conn}})
+
+    assign(conn, :private, %{
+      servirtium: %{
+        conn:
+          conn
+          |> fetch_query_params()
+      }
+    })
   end
 end
