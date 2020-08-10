@@ -28,13 +28,12 @@ defmodule ServirtiumTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert conn.assigns.private.servirtium.conn.request_path == "/hello"
-    assert conn.assigns.private.servirtium.conn.resp_body == "world"
-    assert conn.assigns.private.servirtium.conn.query_params == %{"foo" => "bar"}
+    assert conn.private.servirtium.conn.request_path == "/hello"
+    assert conn.private.servirtium.conn.resp_body == "world"
+    assert conn.private.servirtium.conn.query_params == %{"foo" => "bar"}
 
-    assert conn.assigns.private.servirtium.conn.req_headers == [
-             {"content-type", "application/json"}
-           ]
+    assert conn.private.servirtium.conn |> get_req_header("content-type") ==
+             ["application/json"]
   end
 
   test "records post and response headers" do
@@ -45,12 +44,44 @@ defmodule ServirtiumTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert conn.assigns.private.servirtium.conn.resp_body == "world"
+    assert conn.private.servirtium.conn.resp_body == "world"
+    assert conn.private.servirtium.conn |> get_resp_header("x-paul-is-funny") == ["true"]
+  end
 
-    assert conn.assigns.private.servirtium.conn.resp_headers == [
-             {"cache-control", "max-age=0, private, must-revalidate"},
-             {"x-paul-is-funny", "true"},
-             {"content-type", "text/plain; charset=utf-8"}
-           ]
+  test "markdown generation" do
+    conn =
+      conn(:post, "/hello?foo=bar")
+      |> put_req_header("content-type", "application/json")
+      |> Servirtium.call(plug: &hello_world_plug/2)
+
+    assert Servirtium.to_markdown(conn.private.servirtium.conn) ==
+             """
+             ## Interaction 0: POST /hello?foo=bar
+
+             ### Request headers recorded for playback:
+
+             ```
+             content-type: application/json
+             ```
+
+             ### Request body recorded for playback (application/json):
+
+             ```
+
+             ```
+
+             ### Response headers recorded for playback:
+
+             ```
+             cache-control: max-age=0, private, must-revalidate
+             content-type: text/plain; charset=utf-8
+             ```
+
+             ### Response body recorded for playback (200: text/plain; charset=utf-8):
+
+             ```
+             world
+             ```
+             """
   end
 end
