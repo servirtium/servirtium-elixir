@@ -42,4 +42,28 @@ defmodule Servitium.Markdown do
     ```
     """
   end
+
+  @spec parse_markdown(String.t()) :: map()
+  def parse_markdown(markdown) do
+    ~r"""
+    ## Interaction (?<id>\d+): (?<method>[A-Z]+) (?<path>.+)\s*
+    ### Request headers recorded for playback:\s*
+    ```\s*
+    (?<req_headers>.*)\s*
+    ```\s*
+    ### Request body recorded for playback \((?<req_content_type>.+)\):\s*
+    ```\s*
+    (?<req_body>.*)\s*
+    ```\s*
+    ### Response headers recorded for playback:\s*
+    ```\s*
+    (?<resp_headers>.*)\s*
+    ```\s*
+    ### Response body recorded for playback \((?<status>\d+): (?<resp_content_type>.+)\):\s*
+    ```\s*
+    (?<resp_body>.*)\s*
+    ```\s*
+    """s
+    |> Regex.named_captures(markdown)
+  end
 end
