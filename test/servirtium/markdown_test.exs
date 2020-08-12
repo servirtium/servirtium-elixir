@@ -39,16 +39,21 @@ defmodule Servirtium.MarkdownTest do
     saved_conn = conn.private.servirtium.conn
     markdown = Markdown.to_markdown(saved_conn)
     parsed_conn = Markdown.from_markdown(markdown)
+
+    # Can't do this because of subtleties in Conn struct
+    # (eg fetched v unfetched, dependent fields, etc)
     # assert parsed_conn == saved_conn
+
     assert parsed_conn.status == saved_conn.status
     assert parsed_conn.method == saved_conn.method
     assert parsed_conn.request_path == saved_conn.request_path
     assert parsed_conn.query_string == saved_conn.query_string
     assert parsed_conn.req_headers == saved_conn.req_headers
-    # Plug doesn't save raw body :(
-    # assert parsed_conn.req_body == saved_conn.req_body
     assert parsed_conn.resp_headers == saved_conn.resp_headers
     assert parsed_conn.resp_body == saved_conn.resp_body
+
+    # Plug doesn't save raw body :(
+    # assert parsed_conn.req_body == saved_conn.req_body
   end
 
   defp interaction_markdown() do
