@@ -19,8 +19,10 @@ defmodule ServirtiumTest do
       |> put_req_header("content-type", "application/json")
       |> Servirtium.call(plug: &hello_world_plug/2)
 
-    assert conn.state == :sent
-    assert conn.status == 200
+    assert conn.private.servirtium.conn.state == :sent
+    assert conn.private.servirtium.conn.status == 200
+    assert conn.private.servirtium.conn.method == "GET"
+    assert conn.private.servirtium.conn.request_path == "/hello"
     assert conn.private.servirtium.conn.request_path == "/hello"
     assert conn.private.servirtium.conn.resp_body == "world"
     assert conn.private.servirtium.conn.query_params == %{"foo" => "bar"}
@@ -35,8 +37,9 @@ defmodule ServirtiumTest do
       |> put_resp_header("x-paul-is-funny", "true")
       |> Servirtium.call(plug: &hello_world_plug/2)
 
-    assert conn.state == :sent
-    assert conn.status == 200
+    assert conn.private.servirtium.conn.state == :sent
+    assert conn.private.servirtium.conn.status == 200
+    assert conn.private.servirtium.conn.method == "POST"
     assert conn.private.servirtium.conn.resp_body == "world"
     assert conn.private.servirtium.conn |> get_resp_header("x-paul-is-funny") == ["true"]
   end

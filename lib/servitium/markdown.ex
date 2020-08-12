@@ -43,6 +43,26 @@ defmodule Servitium.Markdown do
     """
   end
 
+  @spec from_markdown(String.t()) :: Plug.Conn.t()
+  def from_markdown(markdown) do
+    data = parse_markdown(markdown)
+
+    [request_path, query_string] =
+      data["path"]
+      |> String.trim()
+      |> String.split("?")
+
+    %Plug.Conn{
+      status: data["status"] |> String.to_integer(),
+      method: data["method"],
+      request_path: request_path,
+      query_string: query_string,
+      req_headers: data["req_headers"] |> parse_headers(),
+      resp_headers: data["resp_headers"] |> parse_headers(),
+      resp_body: data["resp_body"]
+    }
+  end
+
   @spec parse_markdown(String.t()) :: map()
   def parse_markdown(markdown) do
     ~r"""
@@ -65,5 +85,15 @@ defmodule Servitium.Markdown do
     ```\s*
     """s
     |> Regex.named_captures(markdown)
+  end
+
+  def parse_headers(headers) do
+    headers
+    |> String.split("\n", trim: true)
+    |> Enum.map(fn header ->
+      header
+      |> String.split(": ", trim: true)
+      |> List.to_tuple()
+    end)
   end
 end
