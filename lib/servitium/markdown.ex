@@ -53,7 +53,7 @@ defmodule Servirtium.Markdown do
         status = data["status"] |> String.to_integer()
         resp_body = data["resp_body"]
         conn
-        # |> Plug.Conn.merge_resp_headers(data["resp_headers"] |> parse_headers())
+        |> Plug.Conn.merge_resp_headers(data["resp_headers"] |> parse_headers())
         |> Plug.Conn.send_resp(status, resp_body)
     end
   end
