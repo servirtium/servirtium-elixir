@@ -1,9 +1,11 @@
 defmodule Servirtium.MarkdownTest do
   use ExUnit.Case
   use Plug.Test
+
   import Plug.Conn
   import MockPlug
-  alias Servitium.Markdown
+
+  alias Servirtium.Markdown
 
   test "markdown generation" do
     conn =
@@ -31,18 +33,17 @@ defmodule Servirtium.MarkdownTest do
   end
 
   test "markdown roundtrip" do
-    conn =
+    request =
       conn(:post, "/hello?foo=bar")
       |> put_req_header("content-type", "application/json")
+
+    conn =
+      request
       |> Servirtium.call(plug: &hello_world_plug/2)
 
     saved_conn = conn.private.servirtium.conn
     markdown = Markdown.to_markdown(saved_conn)
-    parsed_conn = Markdown.from_markdown(markdown)
-
-    # Can't do this because of subtleties in Conn struct
-    # (eg fetched v unfetched, dependent fields, etc)
-    # assert parsed_conn == saved_conn
+    parsed_conn = Markdown.from_markdown(markdown, request)
 
     assert parsed_conn.status == saved_conn.status
     assert parsed_conn.method == saved_conn.method
