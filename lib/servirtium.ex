@@ -9,10 +9,15 @@ defmodule Servirtium do
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
   def call(conn, opts) do
-    conn = opts[:plug].(conn, opts)
+    if filename = opts[:playback] do
+      filename
+      |> File.read!()
+      |> Servirtium.Markdown.from_markdown(conn)
+    else
+      conn = opts[:plug].(conn, opts)
 
-    # record headers and bodies from request/response
-
-    put_private(conn, :servirtium, %{conn: conn |> fetch_query_params()})
+      # record headers and bodies from request/response
+      put_private(conn, :servirtium, %{conn: conn |> fetch_query_params()})
+    end
   end
 end

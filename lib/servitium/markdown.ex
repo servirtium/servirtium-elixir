@@ -1,4 +1,4 @@
-defmodule Servitium.Markdown do
+defmodule Servirtium.Markdown do
   import Plug.Conn
 
   @spec to_markdown(Plug.Conn.t()) :: String.t()
@@ -43,24 +43,19 @@ defmodule Servitium.Markdown do
     """
   end
 
-  @spec from_markdown(String.t()) :: Plug.Conn.t()
-  def from_markdown(markdown) do
-    data = parse_markdown(markdown)
+  @spec from_markdown(String.t(), Plug.Conn.t()) :: Plug.Conn.t()
+  def from_markdown(markdown, conn) do
+    case parse_markdown(markdown) do
+      nil ->
+        raise "Invalid markdown"
 
-    [request_path, query_string] =
-      data["path"]
-      |> String.trim()
-      |> String.split("?")
-
-    %Plug.Conn{
-      status: data["status"] |> String.to_integer(),
-      method: data["method"],
-      request_path: request_path,
-      query_string: query_string,
-      req_headers: data["req_headers"] |> parse_headers(),
-      resp_headers: data["resp_headers"] |> parse_headers(),
-      resp_body: data["resp_body"]
-    }
+      data ->
+        status = data["status"] |> String.to_integer()
+        resp_body = data["resp_body"]
+        conn
+        # |> Plug.Conn.merge_resp_headers(data["resp_headers"] |> parse_headers())
+        |> Plug.Conn.send_resp(status, resp_body)
+    end
   end
 
   @spec parse_markdown(String.t()) :: map()
@@ -71,7 +66,7 @@ defmodule Servitium.Markdown do
     ```\s*
     (?<req_headers>.*)\s*
     ```\s*
-    ### Request body recorded for playback \((?<req_content_type>.+)\):\s*
+    ### Request body recorded for playback \((?<req_content_type>.*)\):\s*
     ```\s*
     (?<req_body>.*)\s*
     ```\s*
