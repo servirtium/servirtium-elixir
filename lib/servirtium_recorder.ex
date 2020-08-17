@@ -17,12 +17,8 @@ defmodule Plug.Servirtium.Recorder do
   @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
   def call(conn, options) do
     conn = ReverseProxyPlug.call(conn, options)
-
     recorded_interaction = Servirtium.Markdown.to_markdown(conn)
-
-    options[:filename]
-    |> File.write!(recorded_interaction)
-
+    File.write!(options[:filename], recorded_interaction)
     conn
   end
 end
