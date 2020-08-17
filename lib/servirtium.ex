@@ -1,23 +1,21 @@
-defmodule Servirtium do
+defmodule Plug.Servirtium.Playback do
   import Plug.Conn
 
-  @spec init(any) :: any
+  @spec init(Keyword.t()) :: Keyword.t()
   def init(options) do
-    # check we have a plug delegate
+    if options[:filename] == nil do
+      raise ":filename option must be specified and point to a servirtium playback markdown file"
+    end
+
+    # TODO check file exists
+
     options
   end
 
-  @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def call(conn, opts) do
-    if filename = opts[:playback] do
-      filename
-      |> File.read!()
-      |> Servirtium.Markdown.from_markdown(conn)
-    else
-      conn = opts[:plug].(conn, opts)
-
-      # record headers and bodies from request/response
-      put_private(conn, :servirtium, %{conn: conn |> fetch_query_params()})
-    end
+  @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
+  def call(conn, options) do
+    options[:filename]
+    |> File.read!()
+    |> Servirtium.Markdown.from_markdown(conn)
   end
 end
