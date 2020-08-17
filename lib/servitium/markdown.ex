@@ -57,6 +57,7 @@ defmodule Servirtium.Markdown do
         |> Plug.Conn.merge_resp_headers(data["resp_headers"] |> parse_headers())
         |> Plug.Conn.resp(status, resp_body)
         |> Plug.Conn.send_resp()
+
         # TODO figure out why sending the response removes the resp_body from the conn after sending
     end
   end
