@@ -1,5 +1,4 @@
 defmodule Plug.Servirtium.Recorder do
-
   @spec init(Keyword.t()) :: Keyword.t()
   def init(options) do
     if options[:filename] == nil do
@@ -17,7 +16,6 @@ defmodule Plug.Servirtium.Recorder do
 
   @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
   def call(conn, options) do
-
     conn = ReverseProxyPlug.call(conn, options)
 
     recorded_interaction = Servirtium.Markdown.to_markdown(conn)
