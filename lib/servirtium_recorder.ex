@@ -1,4 +1,14 @@
 defmodule Plug.Servirtium.Recorder do
+  @moduledoc """
+  A plug that can be mounted as a reverse proxy to record the
+  proxied HTTP interactions while still communicating with the
+  upstream server.
+
+  An incoming HTTP request fetches the real response from the
+  upstream server and records the HTTP request and response
+  in the given Servirtium markdown file.
+  """
+
   @spec init(Keyword.t()) :: Keyword.t()
   def init(options) do
     if options[:filename] == nil do

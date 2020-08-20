@@ -1,4 +1,12 @@
 defmodule Plug.Servirtium.Playback do
+  @moduledoc """
+  A plug that can be mounted to provide playback of pre-recorded
+  HTTP interactions.
+
+  An incoming HTTP request has it's response determined by the
+  recorded HTTP response in the given Servirtium markdown file.
+  """
+
   import Plug.Conn
 
   @spec init(Keyword.t()) :: Keyword.t()
